@@ -11,6 +11,7 @@ import (
 	"repositoryPoc/domain/entities"
 	"repositoryPoc/domain/services"
 	"repositoryPoc/infra/repository"
+	uow2 "repositoryPoc/infra/uow"
 )
 
 func main() {
@@ -23,12 +24,20 @@ func main() {
 	}
 	defer db.Close()
 
-	userRepo := repository.NewRepository[entities.User](db)
-	addressRepo := repository.NewRepository[entities.Address](db)
+	uow := uow2.NewUnitOfWork(db)
 
-	svc := services.NewUserService(userRepo, addressRepo)
-	u := svc.CreateUser(ctx, "Fabio", "home", "01, homeland street")
+	userRepo := repository.NewRepository[entities.User]()
+	addressRepo := repository.NewRepository[entities.Address]()
 
-	fmt.Println(u)
+	svc := services.NewUserService(uow, userRepo, addressRepo)
+
+	createdUser, err := svc.CreateUser(ctx, "Fabio", "home", "01, homeland street")
+
+	retrievedUser, err := svc.GetUser(ctx, "123")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(createdUser)
+	fmt.Println(retrievedUser)
 
 }

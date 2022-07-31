@@ -1,8 +1,11 @@
 package domain
 
-import "context"
+import (
+	"context"
+	"github.com/vingarcia/ksql"
+)
 
 type Repository[T any] interface {
-	Save(ctx context.Context, item T) error
-	Get(ctx context.Context, id string) (T, error)
+	Save(ctx context.Context, db ksql.Provider, item T) error
+	Get(ctx context.Context, db ksql.Provider, id string) (T, error)
 }
